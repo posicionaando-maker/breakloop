@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="BreakLoop - Interrumpe hábitos tóxicos con secuencias de acciones">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <title>BreakLoop - Interruptor de hábitos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <h1>⚡ BREAKLOOP</h1>
+            <p class="subtitle">Interrumpe el impulso antes de que te controle</p>
+        </header>
+
+        <!-- Modo actual (se muestra dinámicamente) -->
+        <div class="modo-badge" id="modoBadge"></div>
+
+        <!-- Pantalla Principal (Botones principales) -->
+        <div id="mainScreen" class="screen active">
+            <div class="button-group">
+                <button id="btnNormal" class="btn-primary btn-large">
+                    🔄 ESTOY A PUNTO DE CAER
+                </button>
+                <button id="btnEmergency" class="btn-emergency btn-large">
+                    ⚡ MODO EMERGENCIA (5s)
+                </button>
+            </div>
+
+            <div class="stats-card">
+                <div class="stat">
+                    <span class="stat-label">Intervenciones exitosas hoy</span>
+                    <span class="stat-value" id="todaySuccessCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Racha actual</span>
+                    <span class="stat-value" id="currentStreak">0</span>
+                    <small class="stat-note">(sin culpa - solo celebración)</small>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="btnDiary" class="btn-secondary">📔 Diario</button>
+                <button id="btnExport" class="btn-secondary">📤 Exportar</button>
+                <button id="btnConfig" class="btn-secondary">⚙️ Configuración</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Secuencia (dinámica, se llena con JS) -->
+        <div id="sequenceScreen" class="screen">
+            <div class="progress-indicator" id="progressIndicator"></div>
+            <div class="action-card" id="actionCard">
+                <h2 id="actionCategory"></h2>
+                <p id="actionText"></p>
+                <div class="timer" id="timer"></div>
+                <button id="btnComplete" class="btn-primary">✓ COMPLETAR</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Éxito -->
+        <div id="successScreen" class="screen">
+            <div class="success-card">
+                <div class="success-icon">✨</div>
+                <h2>¡REDIRIGISTE!</h2>
+                <p id="successMessage">Has interrumpido un ciclo de impulso.</p>
+                <p class="resilience-points">+1 punto de resiliencia</p>
+                <button id="btnRegisterOption" class="btn-secondary">📝 Registrar en diario</button>
+                <button id="btnBackToMain" class="btn-primary">Volver al inicio</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Diario -->
+        <div id="diaryScreen" class="screen">
+            <div class="diary-header">
+                <h2>📔 Diario de Impulsos</h2>
+                <button id="btnCloseDiary" class="btn-icon">✖</button>
+            </div>
+            <div id="diaryEntries" class="diary-entries"></div>
+            <button id="btnExportDiary" class="btn-secondary">📤 Exportar diario</button>
+            <button id="btnAddManualEntry" class="btn-secondary">➕ Agregar manual</button>
+        </div>
+
+        <!-- Pantalla de Configuración -->
+        <div id="configScreen" class="screen">
+            <div class="config-header">
+                <h2>⚙️ Configuración</h2>
+                <button id="btnCloseConfig" class="btn-icon">✖</button>
+            </div>
+            <div class="config-section">
+                <h3>Modo de funcionamiento</h3>
+                <label>
+                    <input type="radio" name="modo" value="general"> General (pornografía/procrastinación)
+                </label>
+                <label>
+                    <input type="radio" name="modo" value="ludopatia"> Ludopatía (adicción al juego)
+                </label>
+                <button id="btnApplyModo" class="btn-small">Aplicar cambio de modo</button>
+                <p class="config-note" id="modoChangeNote"></p>
+            </div>
+
+            <div class="config-section" id="ludopatiaOptions" style="display:none;">
+                <h3>Opciones de ludopatía</h3>
+                <label>
+                    <input type="checkbox" id="cuartaAccionFinanciera" checked> Activar cuarta acción financiera
+                </label>
+                <label>
+                    <input type="checkbox" id="bloqueoPin"> Activar bloqueo con PIN (protege tu diario)
+                </label>
+                <div id="pinConfigArea" style="display:none;">
+                    <input type="password" id="nuevoPin" placeholder="PIN de 4 dígitos" maxlength="4" pattern="\d*">
+                    <button id="btnGuardarPin" class="btn-small">Guardar PIN</button>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h3>Acciones personalizadas</h3>
+                <p class="config-note">Puedes cambiar el texto de las acciones (no el orden ni categorías)</p>
+                <label>Acción física:</label>
+                <textarea id="customFisica" rows="2"></textarea>
+                <label>Acción cognitiva:</label>
+                <textarea id="customCognitiva" rows="2"></textarea>
+                <label>Acción simbólica:</label>
+                <textarea id="customSimbolica" rows="2"></textarea>
+                <label>Acción emergencia (5s):</label>
+                <textarea id="customEmergencia" rows="2"></textarea>
+                <button id="btnSaveActions" class="btn-small">Guardar acciones</button>
+                <button id="btnResetActions" class="btn-small">Restablecer valores clásicos</button>
+            </div>
+
+            <div class="config-section">
+                <h3>Ayuda profesional (Cuba)</h3>
+                <p class="help-text">
+                    ⚠️ <strong>AVISO IMPORTANTE</strong><br>
+                    Esta aplicación es una herramienta de apoyo, no sustituye el tratamiento psicológico.<br>
+                    Si has perdido control sobre tus finanzas o sientes que no puedes parar, busca ayuda:
+                </p>
+                <ul class="help-list">
+                    <li>📞 Línea MINSAP: <strong>7 838-0000</strong></li>
+                    <li>🏥 Acude a tu policlínico más cercano</li>
+                    <li>🧠 Centro Comunitario de Salud Mental</li>
+                </ul>
+            </div>
+
+            <div class="config-section">
+                <h3>Acerca de</h3>
+                <p class="about-text">
+                    Basado en:<br>
+                    - Charles Duhigg (El poder de los hábitos)<br>
+                    - Terapia EPR (Exposición con prevención de respuesta)<br>
+                    - James Clear (Hábitos atómicos)<br>
+                    - Gollwitzer (Intenciones de implementación)
+                </p>
+            </div>
+        </div>
+
+        <!-- Modal PIN (para ludopatía) -->
+        <div id="pinModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <h3>🔒 Acceso protegido</h3>
+                <p>Ingresa tu PIN de 4 dígitos</p>
+                <input type="password" id="pinInput" maxlength="4" pattern="\d*" autocomplete="off">
+                <button id="btnSubmitPin">Desbloquear</button>
+                <p id="pinError" class="error-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
